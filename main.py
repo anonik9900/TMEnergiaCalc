@@ -19,49 +19,97 @@ ultimo_risparmio = 0
 # =========================
 
 def calcola_risparmio():
+
+    global ultimo_nome
+    global ultimo_totale_attuale
+    global ultimo_totale_tim
+    global ultimo_risparmio
+    global ultimo_dettagli
+
     try:
-        global ultimo_nome
-        global ultimo_totale_attuale
-        global ultimo_totale_tim
-        global ultimo_risparmio
-        # DATI CLIENTE
+
         nome = entry_nome.get()
 
-        prezzo_luce_cliente = float(entry_luce_prezzo.get())
-        consumo_luce = float(entry_luce_consumo.get())
+        totale_attuale = 0
+        totale_tim = 0
 
-        prezzo_gas_cliente = float(entry_gas_prezzo.get())
-        consumo_gas = float(entry_gas_consumo.get())
+        dettagli = []
 
-        # SPESA ATTUALE
-        spesa_luce_attuale = prezzo_luce_cliente * consumo_luce
-        spesa_gas_attuale = prezzo_gas_cliente * consumo_gas
+        # =========================
+        # LUCE
+        # =========================
 
-        totale_attuale = spesa_luce_attuale + spesa_gas_attuale
+        if calcola_luce.get():
 
-        # SPESA TIM
-        spesa_luce_tim = TIM_LUCE * consumo_luce
-        spesa_gas_tim = TIM_GAS * consumo_gas
+            prezzo_luce_cliente = float(entry_luce_prezzo.get())
+            consumo_luce = float(entry_luce_consumo.get())
 
-        totale_tim = spesa_luce_tim + spesa_gas_tim
+            spesa_luce_attuale = prezzo_luce_cliente * consumo_luce
+            spesa_luce_tim = TIM_LUCE * consumo_luce
 
-        # RISPARMIO
+            totale_attuale += spesa_luce_attuale
+            totale_tim += spesa_luce_tim
+
+            dettagli.append(
+                f"LUCE\n"
+                f"Attuale: € {spesa_luce_attuale:.2f}\n"
+                f"TIM Energia: € {spesa_luce_tim:.2f}\n"
+            )
+
+        # =========================
+        # GAS
+        # =========================
+
+        if calcola_gas.get():
+
+            prezzo_gas_cliente = float(entry_gas_prezzo.get())
+            consumo_gas = float(entry_gas_consumo.get())
+
+            spesa_gas_attuale = prezzo_gas_cliente * consumo_gas
+            spesa_gas_tim = TIM_GAS * consumo_gas
+
+            totale_attuale += spesa_gas_attuale
+            totale_tim += spesa_gas_tim
+
+            dettagli.append(
+                f"GAS\n"
+                f"Attuale: € {spesa_gas_attuale:.2f}\n"
+                f"TIM Energia: € {spesa_gas_tim:.2f}\n"
+            )
+
+        # =========================
+        # CONTROLLO
+        # =========================
+
+        if not calcola_luce.get() and not calcola_gas.get():
+            messagebox.showwarning(
+                "Attenzione",
+                "Seleziona almeno Luce o Gas"
+            )
+            return
+
         risparmio = totale_attuale - totale_tim
 
         ultimo_nome = nome
         ultimo_totale_attuale = totale_attuale
         ultimo_totale_tim = totale_tim
         ultimo_risparmio = risparmio
+        ultimo_dettagli = dettagli
 
         risultato.set(
             f"Cliente: {nome}\n\n"
-            f"Spesa attuale: € {totale_attuale:.2f}\n"
+            + "\n".join(dettagli)
+            + f"\n"
+            f"Spesa Attuale Totale: € {totale_attuale:.2f}\n"
             f"Spesa TIM Energia: € {totale_tim:.2f}\n\n"
-            f"Risparmio annuo: € {risparmio:.2f}"
+            f"RISPARMIO ANNUO: € {risparmio:.2f}"
         )
 
     except ValueError:
-        messagebox.showerror("Errore", "Inserisci valori validi")
+        messagebox.showerror(
+            "Errore",
+            "Inserisci valori numerici validi"
+        )
 
 
 def crea_pdf():
@@ -77,7 +125,8 @@ def crea_pdf():
         ultimo_nome,
         ultimo_totale_attuale,
         ultimo_totale_tim,
-        ultimo_risparmio
+        ultimo_risparmio,
+        ultimo_dettagli
     )
 
     messagebox.showinfo(
@@ -94,6 +143,16 @@ root.title("TIM Energia Calculator")
 root.geometry("650x750")
 root.configure(bg="#f4f6f9")
 
+
+
+# =========================
+# MODALITÀ CALCOLO
+# =========================
+
+calcola_luce = tk.BooleanVar(value=True)
+calcola_gas = tk.BooleanVar(value=True)
+
+
 # =========================
 # TITOLO
 # =========================
@@ -107,6 +166,31 @@ titolo = tk.Label(
 )
 
 titolo.pack(pady=20)
+
+
+
+frame_servizi = tk.Frame(root, bg="#f4f6f9")
+frame_servizi.pack(pady=10)
+
+check_luce = tk.Checkbutton(
+    frame_servizi,
+    text="Luce",
+    variable=calcola_luce,
+    bg="#f4f6f9",
+    font=("Arial", 11, "bold")
+)
+
+check_luce.pack(side="left", padx=10)
+
+check_gas = tk.Checkbutton(
+    frame_servizi,
+    text="Gas",
+    variable=calcola_gas,
+    bg="#f4f6f9",
+    font=("Arial", 11, "bold")
+)
+
+check_gas.pack(side="left", padx=10)
 
 # =========================
 # NOME CLIENTE

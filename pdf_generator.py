@@ -9,7 +9,8 @@ def genera_pdf(
     nome_cliente,
     totale_attuale,
     totale_tim,
-    risparmio
+    risparmio,
+    dettagli
 ):
 
     nome_file = f"Preventivo_{nome_cliente}.pdf"
@@ -85,6 +86,22 @@ def genera_pdf(
         height - 380,
         f"Risparmio stimato: € {risparmio:.2f} / anno"
     )
+
+
+
+    c.setFont("Helvetica", 11)
+
+    altezza_dettagli = height - 450
+
+    for dettaglio in dettagli:
+
+        for linea in dettaglio.split("\n"):
+
+            c.drawString(50, altezza_dettagli, linea)
+            altezza_dettagli -= 18
+
+        altezza_dettagli -= 10
+
 
     # =========================
     # FOOTER
